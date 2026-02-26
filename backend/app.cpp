@@ -6,7 +6,7 @@
 int main() {
     int server_fd = socket(AF_INET, SOCK_STREAM, 0);
 
-    sockaddr_in address;
+    sockaddr_in address{};
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(8080);
@@ -15,14 +15,20 @@ int main() {
     listen(server_fd, 5);
 
     while (true) {
-        int client = accept(server_fd, NULL, NULL);
+        int client = accept(server_fd, nullptr, nullptr);
+
+        std::string body = "Served by backend container\n";
 
         std::string response =
             "HTTP/1.1 200 OK\r\n"
-            "Content-Type: text/plain\r\n\r\n"
-            "Served by backend: container\n";
+            "Content-Type: text/plain\r\n"
+            "Content-Length: " + std::to_string(body.size()) + "\r\n"
+            "Connection: close\r\n"
+            "\r\n" +
+            body;
 
-        send(client, response.c_str(), response.length(), 0);
+        send(client, response.c_str(), response.size(), 0);
+        shutdown(client, SHUT_RDWR);
         close(client);
     }
 
