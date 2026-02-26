@@ -10,7 +10,7 @@ pipeline {
         }
 
         stage('Deploy Backends') {
-            steps {
+            steps {		
                 sh '''
                 docker rm -f backend1 backend2 nginx-lb || true
                 docker network rm lab6-network || true
@@ -33,7 +33,7 @@ pipeline {
 
                 sleep 2
 
-                docker cp nginx/default.conf nginx-lb:/etc/nginx/conf.d/default.conf
+                docker cp ./nginx/default.conf nginx-lb:/etc/nginx/conf.d/default.conf
                 docker exec nginx-lb nginx -s reload
                 '''
             }
